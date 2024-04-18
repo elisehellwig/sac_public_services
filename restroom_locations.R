@@ -1,8 +1,14 @@
 library(sf)
 library(terra)
+library(openxlsx)
 
 ppr = st_read(dsn='data/Parks_Public_Restrooms.geojson',
               layer='Parks_Public_Restrooms')
+
+status = read.xlsx('data/City Parks with Restrooms 040824.xlsx')
+names(status)[2] = "OBJECTID"
+
+ppr_status = merge(ppr, status, by='OBJECTID')
 
 camp = vect('data/test_encampments.kml') |> st_as_sf()
 
