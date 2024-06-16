@@ -7,18 +7,29 @@ library("pbapply")
 library("geojsonsf")
 library("sf")
 
+
 sf_to_df = function(sf_pts) {
   coord_mat = st_coordinates(sf_pts)
   df = data.frame(lat=coord_mat[,'Y'], lon=coord_mat[,'X'])
   return(df)
 }
 
-build_req_str = function(from, to, id, server, port) {
+build_req_str = function(from, to, id, server, port, token=NA) {
   df_from = sf_to_df(from)
   df_to = sf_to_df(to)
+  
   json = toJSON(list("sources" = df_from, "targets" = df_to,
-                     "costing" = unbox('pedestrian')))
-  url_string = str_glue("{server}:{port}/sources_to_targets?json={json}&id={id}")
+                    "costing" = unbox('pedestrian')))
+  
+  input_string = "{server}:{port}/sources_to_targets?json={json}&id={id}"
+  
+  if (!is.na(token)) {
+    json$token = unbox(token)
+    
+    input_string = paste0(input_string, "&access_token={token}")
+  }
+
+  url_string = str_glue(input_string)
 }
 
 submit_req = function(request) {
@@ -33,11 +44,22 @@ submit_req = function(request) {
 # if using datasci.library.ucdavis.edu as the server, make sure you are 
 # on the staff vpn
 server = "http://datasci.library.ucdavis.edu"
-port = 8002
+server = ""
+port = 8004
+token = readLines('data/secrets')
+
 ppr = st_read('data/Park_Restroom_Status.geojson')
 names(ppr)
 
 spts = st_read('data/sac_street_sample_points.geojson')
+
+##testing
+n = 5
+
+test_ppr = ppr[sample(1:nrow(ppr), n), ]
+test_pts = spts[sample(1:nrow(spts), n), ]
+
+request = build_req_str(test_pts, test_ppr, 'midnight', server, port)
 
 for (time_limit in time_limits) {
   # construct a vector of the request strings from the data
