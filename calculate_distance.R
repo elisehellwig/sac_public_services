@@ -39,6 +39,12 @@ names(ppr)
 
 spts = st_read('data/sac_street_sample_points.geojson')
 
+test_ppr = ppr[sample(1:nrow(ppr), 5), ]
+test_pts = spts[sample(1:nrow(spts), 5), ]
+
+request = build_req_str(test_pts, test_ppr, 'midnight', server, port)
+api_response = GET(request)
+
 for (time_limit in time_limits) {
   # construct a vector of the request strings from the data
   requests = mapply(build_req_str, address_df$Latitude, address_df$Longitude, 
