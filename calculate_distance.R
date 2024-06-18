@@ -31,7 +31,7 @@ submit_req = function(request) {
 }
 
 # if using datasci.library.ucdavis.edu as the server, make sure you are 
-# on the staff vpn
+# on the staff vpn (not the library vpn)
 server = "http://datasci.library.ucdavis.edu"
 port = 8002
 ppr = st_read('data/Park_Restroom_Status.geojson')
