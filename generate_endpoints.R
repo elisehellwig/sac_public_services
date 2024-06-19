@@ -1,5 +1,8 @@
 library(osmdata)
 library(sf)
+
+fn = 'data/sac_street_sample_points.geojson'
+
 #requires internet
 feats = available_features()
 
@@ -22,7 +25,7 @@ walking_ll = sac_paths$osm_lines[,line_vars]
 walking = st_transform(walking_ll, st_crs(3310))
 
 set.seed(29383)
-multipts = st_line_sample(walking, density = 0.1)
+multipts = st_line_sample(walking, density = 0.2)
 
 multipts_full = multipts[!st_is_empty(multipts), ]
 
@@ -30,6 +33,9 @@ pts = st_cast(st_sfc(multipts_full), "POINT")
 
 pts_ll = st_transform(pts, 4326)
 
-st_write(pts_ll, 'data/sac_street_sample_points.geojson')
+if (file.exists(fn)) {
+  file.remove(fn)
+}
+st_write(pts_ll, fn)
 
 
