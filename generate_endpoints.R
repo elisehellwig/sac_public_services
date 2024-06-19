@@ -1,6 +1,8 @@
 library(osmdata)
 library(sf)
 
+source('functions.R')
+
 fn = 'data/sac_street_sample_points.geojson'
 
 #requires internet
@@ -29,13 +31,12 @@ multipts = st_line_sample(walking, density = 0.2)
 
 multipts_full = multipts[!st_is_empty(multipts), ]
 
-pts = st_cast(st_sfc(multipts_full), "POINT")
+pts_set = st_cast(st_sfc(multipts_full), "POINT")
+
+pts = st_sf(to_index=1:length(pts_set)-1, geometry=pts_set)
 
 pts_ll = st_transform(pts, 4326)
 
-if (file.exists(fn)) {
-  file.remove(fn)
-}
-st_write(pts_ll, fn)
+write_sf(pts_ll, fn)
 
 
