@@ -4,33 +4,33 @@ library("httr")
 library("stringr")
 library("jsonlite")
 library("pbapply")  
-library("geojsonsf")
 library("sf")
+library("data.table")
 
+source('functions.R')
 
-sf_to_df = function(sf_pts) {
-  coord_mat = st_coordinates(sf_pts)
-  df = data.frame(lat=coord_mat[,'Y'], lon=coord_mat[,'X'])
-  return(df)
-}
-
-build_req_str = function(from, to, id, server, port) {
-  df_from = sf_to_df(from)
-  df_to = sf_to_df(to)
-  
-  json = toJSON(list("sources" = df_from, "targets" = df_to,
-                    "costing" = unbox('pedestrian')))
-  
-  url_string = str_glue("{server}:{port}/sources_to_targets?json={json}&id={id}")
-}
 
 submit_req = function(request) {
   api_response = GET(request)
-  response = rawToChar(api_response$content)
-  isochrone = geojson_sf(response)
-  isochrone = st_cast(isochrone, to="POLYGON")
-  isochrone$ID =fromJSON(response)["id"]
-  isochrone
+  
+  stop_for_status(api_response)
+  
+  from_to_list = fromJSON(rawToChar(api_response$content))
+  
+  dist_mat = from_to_list$sources_to_targets |> rbindlist()
+  
+  from_mat = merge(dist_mat, sources, by='from_index')
+  to_mat = merge(from_mat, targets, by='to_index')
+  
+  to_mat$departure = from_to_list$id
+  to_mat$dist_units = from_to_list$units
+  
+  unit_msg = paste('units:', from_to_list$units)
+  
+  print(unit_msg)
+  
+  return(to_mat)
+  
 }
 
 # if using datasci.library.ucdavis.edu as the server, make sure you are 
@@ -39,18 +39,32 @@ server = "http://datasci.library.ucdavis.edu"
 port = 8002
 
 ppr = st_read('data/Park_Restroom_Status.geojson')
-names(ppr)
-
 spts = st_read('data/sac_street_sample_points.geojson')
 
 ##testing
 n = 5
 
-test_ppr = ppr[sample(1:nrow(ppr), n), ]
+test_ppr = ppr[1:(n+1), ]
 test_pts = spts[sample(1:nrow(spts), n), ]
 
-request = build_req_str(test_pts, test_ppr, 'midnight', server, port)
+request = build_req_str(test_pts, test_ppr, server, port, '12:00')
+system.time(mat <- submit_req(request))
+
 api_response = GET(request)
+
+from_to_list = fromJSON(rawToChar(api_response$content))
+
+sources = from_to_list$sources[[1]]
+sources$index = 1:nrow(sources)-1
+names(sources) = paste0('from_', names(sources))
+
+targets = from_to_list$targets[[1]]
+targets$index = 1:nrow(targets)-1
+names(targets) = paste0('to_', names(targets))
+
+
+#Valhalla Specific Errors
+
 
 for (time_limit in time_limits) {
   # construct a vector of the request strings from the data
