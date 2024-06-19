@@ -39,4 +39,19 @@ pts_ll = st_transform(pts, 4326)
 
 write_sf(pts_ll, fn)
 
+#chunk up data
+
+nchunk = ceiling(nrow(pts_ll)/35)
+
+pts_list = lapply(1:nchunk, function(i) {
+  start = (i-1)*35+1
+  end = if (i == nchunk) nrow(pts_ll) else i*35
+  pts_ll[start:end, ]
+})
+
+sapply(pts_list, nrow) |> unique()
+
+saveRDS(pts_list, 'data/sac_street_sample_points_list.RDS')
+
+
 
