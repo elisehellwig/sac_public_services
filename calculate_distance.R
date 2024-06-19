@@ -19,17 +19,9 @@ submit_req = function(request) {
   
   dist_mat = from_to_list$sources_to_targets |> rbindlist()
   
-  from_mat = merge(dist_mat, sources, by='from_index')
-  to_mat = merge(from_mat, targets, by='to_index')
+  dist_mat$departure = from_to_list$id
   
-  to_mat$departure = from_to_list$id
-  to_mat$dist_units = from_to_list$units
-  
-  unit_msg = paste('units:', from_to_list$units)
-  
-  print(unit_msg)
-  
-  return(to_mat)
+  return(dist_mat)
   
 }
 
