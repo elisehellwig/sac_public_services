@@ -31,32 +31,17 @@ server = "http://datasci.library.ucdavis.edu"
 port = 8002
 
 ppr = st_read('data/Park_Restroom_Status.geojson')
-spts = st_read('data/sac_street_sample_points.geojson')
+pts_list = readRDS('data/sac_street_sample_points_list.RDS')
 
-##testing
-n = 5
 
-test_ppr = ppr[1:(n+1), ]
-test_pts = spts[sample(1:nrow(spts), n), ]
-
-request = build_req_str(test_pts, test_ppr, server, port, '12:00')
+request = build_req_str(test_pts, ppr, server, port, '12:00')
 system.time(mat <- submit_req(request))
 
-api_response = GET(request)
+requests = sapply(pts_list, build_req_str, ppr, server, port, '12:00')
 
-from_to_list = fromJSON(rawToChar(api_response$content))
-
-sources = from_to_list$sources[[1]]
-sources$index = 1:nrow(sources)-1
-names(sources) = paste0('from_', names(sources))
-
-targets = from_to_list$targets[[1]]
-targets$index = 1:nrow(targets)-1
-names(targets) = paste0('to_', names(targets))
-
-
-#Valhalla Specific Errors
-
+log_fn = paste0('data/log_', Sys.time(), '.txt')
+sink()
+dist_mats = pblapply(requests, submit_req) |> rbindlist()
 
 for (time_limit in time_limits) {
   # construct a vector of the request strings from the data
