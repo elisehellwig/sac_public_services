@@ -16,6 +16,10 @@ build_req_str = function(from, to, server, port, departure=NA,
   df_from = sf_to_df(from)
   df_to = sf_to_df(to)
   
+  if (nrow(from)>nrow(to) & !is.na(departure)) {
+    stop('You cannot set a departure time if there are more sources than targets.')
+  }
+  
   datetime = data.frame(type=1, value=paste0(date, "T", departure))
   
   json = toJSON(list("sources" = df_from,
