@@ -81,10 +81,10 @@ dist_fns = create_fns(base_path, length(pts_list), 'csv')
 
 request_df = data.table(fn=dist_fns, request=requests)
 
-done_fns = list.files(base_path, pattern='csv$')
+done_fns = file.path(data_path, list.files(data_path, pattern='csv$'))
 
 fns_to_do = request_df[!fn %in% done_fns]
 
-msgs = mapply(submit_save_request, request_df$request, request_df$fn)
+msgs = mapply(submit_save_request, fns_to_do$request, fns_to_do$fn)
 
 percent_done(request_df, data_path)
