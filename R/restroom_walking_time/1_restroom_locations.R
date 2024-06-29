@@ -2,7 +2,7 @@ library(sf)
 library(data.table)
 library(openxlsx)
 
-source('functions.R')
+source('R/functions.R')
 
 ppr = st_read(dsn='data/Parks_Public_Restrooms.geojson',
               layer='Parks_Public_Restrooms')

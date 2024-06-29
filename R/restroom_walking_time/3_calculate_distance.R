@@ -7,7 +7,7 @@ library("sf")
 library("data.table")
 library('scales')
 
-source('functions.R')
+source('R/functions.R')
 
 
 submit_save_request = function(request, fn=NA) {

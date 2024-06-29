@@ -1,7 +1,7 @@
 library(osmdata)
 library(sf)
 
-source('functions.R')
+source('R/functions.R')
 
 fn = 'data/sac_street_sample_points.geojson'
 
