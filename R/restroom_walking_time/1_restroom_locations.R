@@ -23,6 +23,6 @@ ppr_status = merge(ppr, final_status, by='OBJECTID')
 ppr_ll = st_transform(ppr_status, 4326)
 
 ppr_ll = ppr_ll[order(ppr_ll$OBJECTID), ]
-ppr_ll$from_index = 1:nrow(ppr_ll)-1
+ppr_ll$to_index = 1:nrow(ppr_ll)-1
 
 write_sf(ppr_ll, 'data/Park_Restroom_Status.geojson')

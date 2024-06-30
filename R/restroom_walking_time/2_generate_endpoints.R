@@ -33,7 +33,7 @@ multipts_full = multipts[!st_is_empty(multipts), ]
 
 pts_set = st_cast(st_sfc(multipts_full), "POINT")
 
-pts = st_sf(to_index=1:length(pts_set)-1, geometry=pts_set)
+pts = st_sf(from_index=1:length(pts_set)-1, geometry=pts_set)
 
 pts_ll = st_transform(pts, 4326)
 
