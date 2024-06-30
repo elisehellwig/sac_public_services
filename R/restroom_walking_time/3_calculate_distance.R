@@ -34,6 +34,7 @@ done_fns = file.path(data_path, list.files(data_path, pattern='csv$'))
 
 fns_to_do = request_df[!fn %in% done_fns]
 
+#time is in seconds, assumes 19 minute mile
 msgs = mapply(submit_save_request, fns_to_do$request, fns_to_do$fn)
 
 percent_done(request_df, data_path)
