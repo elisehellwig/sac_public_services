@@ -48,3 +48,20 @@ percent_done = function(df, data_path) {
   
   
 }
+
+
+read_in_dist = function(fn, pattern = '_') {
+  
+  i = length(gregexpr(pattern, fn)[[1]]) + 1 
+  
+  num_string = str_split_i(fn, pattern, i)
+  
+  num = as.numeric(gsub('[^0-9]', '', num_string))
+  
+  df = fread(fn)
+  
+  df[, from_index:=(num-1)*35+from_index]
+  
+  return(df)
+  
+}
